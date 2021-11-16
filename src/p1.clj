@@ -7,7 +7,7 @@
 ;    values
 ;    )
 ;  )
-;
+
 ;(with-open [rdr (clojure.java.io/reader "src/input_p1.txt")]
 ;  (loop [res 0]
 ;    (when (line-seq rdr)
@@ -16,7 +16,7 @@
 ;  )
 
 ;; scratch pad on part 1
-(def p1-vals (clojure.string/split (slurp "src/input_p1.txt") #"\n"))
+(def p1-vals (clojure.string/split (slurp "resources/input_p1.txt") #"\n"))
 
 (def p1-parsed-vals
   (map #(Integer/parseInt %) p1-vals))
@@ -33,19 +33,25 @@
   (-> (slurp target)
       (clojure.string/split #"\n")))
 
-(defn string-list-to-int-list [li]
+(defn string-seq-to-int-seq [li]
   (map #(Integer/parseInt %) li))
 
-(defn solve-part1 [li]
+(defn parse-input
+  "output: [1 2 3]"
+  [path]
+  (-> path
+      read-input-files
+      string-seq-to-int-seq))
+
+(defn solve-part1
+  "sum of sequences"
+  [li]
   (reduce + li))
 
-(comment
-  (-> "src/input_p1.txt"
-      read-input-files
-      string-list-to-int-list
-      solve-part1))
-
-
+(defn solve-part11
+  "another way"
+  [seq]
+  (apply + seq))
 
 ;; scratchpad on part2
 
@@ -53,7 +59,7 @@
 (defn solve-part2 [li]
   (let [inf-li (flatten (repeat li))]
     (loop [temp-set #{}
-           cur-li inf-li
+           cur-seq inf-seq
            acc 0]
       (if (temp-set (+ acc (first cur-li)))
         (+ acc (first cur-li))
@@ -62,7 +68,36 @@
                (+ acc (first cur-li)))))))
 
 (comment
-  (-> "src/input_p1.txt"
-      read-input-files
-      string-list-to-int-list
-      solve-part2))
+  (-> "resources/input_p1.txt"
+      parse-input
+      solve-part1),
+  (-> "resources/input_p1.txt"
+      parse-input
+      solve-part11),
+  (-> "resources/input_p1.txt"
+      parse-input
+      solve-part2),
+  (-> "resources/input_p1.txt"
+      parse-input
+      cycle
+      solve-part2),
+  (-> "resources/input_p1.txt"
+      parse-input
+      cycle
+      solve-part22))
+
+;; aoc exercise 밑에 resources 생성
+; read file + parsing을 한번에 하고 input output을 이해하기 쉽도록 하자
+; 주석까지 달아준다면 금상첨화
+; comment 블럭이 맨 아래 하나만 있으면 좋음.
+; flatten + repeat -> cycle, 반복된 사용 let으자 빼자
+; flatten 을 지양하자
+; list가 아니라 사실 seq임
+; reductions  (partial sum 같은 거) 추가 과제
+
+
+; list vector map set
+; sequence 추상화 : first rest cons 구현하면 seq라고 해줌 / collection 추상화
+; ->> (seq 추상화를 다룸)
+; -> (conj concat ... )
+; to be continued
