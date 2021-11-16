@@ -47,3 +47,5 @@
        sum-list
       )
   )
+
+;; scratchpad on part2
