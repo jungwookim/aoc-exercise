@@ -40,7 +40,8 @@
   (reduce + li))
 
 (comment
-  (-> (read-input-files "src/input_p1.txt")
+  (-> "src/input_p1.txt"
+      read-input-files
       string-list-to-int-list
       solve-part1))
 
@@ -49,18 +50,19 @@
 ;; scratchpad on part2
 
 ; 더한 결과 값을 set에 넣고 포함하고 있으면 바로 반환한다
-
 (defn solve-part2 [li]
-  (loop [temp-set #{}
-         cur-li li
-         acc-val 0]
-    (if (temp-set (+ acc-val (first cur-li)))
-      (first cur-li)
-      (recur (cons (+ acc-val (first cur-li)) temp-set)
-             (rest cur-li)
-             (+ acc-val (first cur-li))))))
+  (let [inf-li (flatten (repeat li))]
+    (loop [temp-set #{}
+           cur-li inf-li
+           acc 0]
+      (if (temp-set (+ acc (first cur-li)))
+        (+ acc (first cur-li))
+        (recur (conj temp-set (+ acc (first cur-li)))
+               (rest cur-li)
+               (+ acc (first cur-li)))))))
 
 (comment
-  (-> (read-input-files "src/input_p1.txt")
+  (-> "src/input_p1.txt"
+      read-input-files
       string-list-to-int-list
       solve-part2))
