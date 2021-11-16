@@ -25,8 +25,8 @@
   (reduce + numbers))
 
 (comment
-  (sum-all p1-parsed-vals)
-  )
+  (sum-all p1-parsed-vals))
+
 
 ;; final on part 1
 (defn read-input-files [target]
@@ -41,10 +41,10 @@
 
 (comment
   (-> (read-input-files "src/input_p1.txt")
-       string-list-to-int-list
-       solve-part1
-      )
-  )
+      string-list-to-int-list
+      solve-part1))
+
+
 
 ;; scratchpad on part2
 
@@ -54,24 +54,13 @@
   (loop [temp-set #{}
          cur-li li
          acc-val 0]
-    (if (empty? cur-li)
-      ("NOT FOUND")
-      (
-       (if (temp-set (+ acc-val (first cur-li)))
-         (first cur-li)
-         (recur (conj temp-set (+ acc-val (first cur-li)))
-                (rest cur-li)
-                (+ acc-val (first cur-li))
-                )
-         )
-        )
-      )
-    )
-  )
+    (if (temp-set (+ acc-val (first cur-li)))
+      (first cur-li)
+      (recur (cons (+ acc-val (first cur-li)) temp-set)
+             (rest cur-li)
+             (+ acc-val (first cur-li))))))
 
-(solve-part2 [1 3 5])
 (comment
   (-> (read-input-files "src/input_p1.txt")
       string-list-to-int-list
-      solve-part2)
-  )
+      solve-part2))
