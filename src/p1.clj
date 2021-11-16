@@ -80,11 +80,8 @@
   (-> "resources/input_p1.txt"
       parse-input
       cycle
-      solve-part2),
-  (-> "resources/input_p1.txt"
-      parse-input
-      cycle
-      solve-part22))
+      solve-part22),)
+
 
 ;; aoc exercise 밑에 resources 생성
 ; read file + parsing을 한번에 하고 input output을 이해하기 쉽도록 하자
