@@ -38,14 +38,31 @@
 (defn string-list-to-int-list [li]
   (map #(Integer/parseInt %) li))
 
-(defn sum-list [li]
+(defn solve-part1 [li]
   (reduce + li))
 
 (comment
   (-> (read-input-files "src/input_p1.txt")
        string-list-to-int-list
-       sum-list
+       solve-part1
       )
   )
 
 ;; scratchpad on part2
+
+; 더한 결과 값을 set에 넣고 포함하고 있으면 바로 반환한다
+
+(defn solve-part2 [li]
+  (loop [temp-set #{}, cur-li li]
+    (if (temp-set (first cur-li))
+      (first cur-li)
+      (recur (conj temp-set (first cur-li)) (rest li))
+      )
+    )
+  )
+
+(comment
+  (-> (read-input-files "src/input_p1.txt")
+      string-list-to-int-list
+      solve-part2)
+  )
