@@ -18,8 +18,6 @@
 ;; scratch pad on part 1
 (def p1-vals (clojure.string/split (slurp "src/input_p1.txt") #"\n"))
 
-(println p1-vals)
-
 (def p1-parsed-vals
   (map #(Integer/parseInt %) p1-vals))
 
@@ -53,14 +51,25 @@
 ; 더한 결과 값을 set에 넣고 포함하고 있으면 바로 반환한다
 
 (defn solve-part2 [li]
-  (loop [temp-set #{}, cur-li li]
-    (if (temp-set (first cur-li))
-      (first cur-li)
-      (recur (conj temp-set (first cur-li)) (rest li))
+  (loop [temp-set #{}
+         cur-li li
+         acc-val 0]
+    (if (empty? cur-li)
+      ("NOT FOUND")
+      (
+       (if (temp-set (+ acc-val (first cur-li)))
+         (first cur-li)
+         (recur (conj temp-set (+ acc-val (first cur-li)))
+                (rest cur-li)
+                (+ acc-val (first cur-li))
+                )
+         )
+        )
       )
     )
   )
 
+(solve-part2 [1 3 5])
 (comment
   (-> (read-input-files "src/input_p1.txt")
       string-list-to-int-list
