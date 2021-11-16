@@ -53,7 +53,7 @@
   [seq]
   (apply + seq))
 
-;; scratchpad on part2
+;; scratchpad and final on part2
 
 ; 더한 결과 값을 set에 넣고 포함하고 있으면 바로 반환한다
 (defn solve-part2 [li]
