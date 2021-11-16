@@ -15,7 +15,7 @@
 ;      )
 ;  )
 
-;; scratch pad
+;; scratch pad on part 1
 (def p1-vals (clojure.string/split (slurp "src/input_p1.txt") #"\n"))
 
 (println p1-vals)
@@ -30,9 +30,9 @@
   (sum-all p1-parsed-vals)
   )
 
-;; final
+;; final on part 1
 (defn read-input-files [target]
-  (-> slurp target
+  (-> (slurp target)
       (clojure.string/split #"\n")))
 
 (defn string-list-to-int-list [li]
@@ -42,7 +42,8 @@
   (reduce + li))
 
 (comment
-  (-> read-input-files "src/input_p1.txt"
+  (-> (read-input-files "src/input_p1.txt")
        string-list-to-int-list
-       sum-list)
+       sum-list
+      )
   )
