@@ -10,9 +10,6 @@
 (defn character-to-keyword [c]
   (keyword (str c)))
 
-(defn char-convert-to-map-with-value-zero [c]
-  {(character-to-keyword c) 0})
-
 (defn get-new-alphabet-map []
   {:a 0
    :b 0
@@ -52,34 +49,30 @@
 (defn words-to-freq
   "return: collections of alphabet map"
   [words]
-  (doseq [word words]
-    (let [my-map (get-new-alphabet-map)]
-      (reduce update-freq my-map word))))
-
-(defn words-to-freq2
-  "return: collections of alphabet map"
-  [words]
   (map (fn [word]
          (let [my-map (get-new-alphabet-map)]
            (reduce update-freq my-map word))) words))
 
-(defn calc
-  "count >= 2 and >=3 cases"
+(defn calc2
+  "calc count >= 2 and >=3 cases"
   [coll]
-  (let [cnt-gte-2 0
-        cnt-gte-3 0]
-    (doseq [word-map coll]
-      (let [values (vals word-map)]
-        (prn (str values " $$ " cnt-gte-3))
-        (cond
-          (contains-n-freq-char? 2 values) (do (inc cnt-gte-2) (inc cnt-gte-3))
-          (contains-n-freq-char? 3 values) (inc cnt-gte-3))))
+  (loop [word-map-seq (seq coll)
+         cnt-gte-2 0
+         cnt-gte-3 0]
+    (let [values (vals (first word-map-seq))]
+      (cond
+        (contains-n-freq-char? 3 values) (recur (rest word-map-seq)
+                                                (inc cnt-gte-2)
+                                                (inc cnt-gte-3))
+        (contains-n-freq-char? 2 values) (recur (rest word-map-seq)
+                                                (inc cnt-gte-2)
+                                                cnt-gte-3)))
     (* cnt-gte-2 cnt-gte-3)))
 
 (comment (-> "resources/input_p2.txt"
              read-input
-             words-to-freq2
-             calc))
+             words-to-freq
+             calc2))
 
 ; word 순회하면서 map 업데이트
 ; 2개 이상 발견된거 있으면 ans1, ans2 둘다 +1
