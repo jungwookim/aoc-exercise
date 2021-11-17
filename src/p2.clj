@@ -60,6 +60,32 @@
          (let [my-map (get-new-alphabet-map)]
            (reduce update-freq my-map word))) words))
 
+; frequencies + char-array
+
+; part2
+
+
+(defn only-one-different? [v1 v2]
+  (->> (map vector (seq v1) (seq v2))
+       (map (fn [c1 c2] (if (== c1 c2) c1) (== c1 c2)))
+       (filter #(== % true))
+       count
+       (== 1)))
+
+(defn get-common-chars [v1 v2]
+  (->> (map vector (seq v1) (seq v2))))
+
+(defn calc2 [str-li]
+  (loop [cur-index 0]
+    (doseq [val str-li]
+      (let [cur-val (nth str-li cur-index)]
+        (when (only-one-different? cur-val val)
+          (get-common-chars cur-val val))))
+    (recur (inc cur-index))))
+
+
+
+; 하나의 인덱스에만 다른 문자를 가지고 있을 때 다른 문자열 쌍에서 같은 부분만을 리턴하시오
 (comment (->> "resources/input_p2.txt"
               read-input
               words-to-freq
@@ -67,4 +93,3 @@
                      (vals x)))
               calc-freq))
 
-; part 2
