@@ -39,19 +39,41 @@
    :y 0
    :z 0})
 
-(defn calc-freq [li]
+(defn generator-alphas []
+  (into {} (mapv (fn [k] {(character-to-keyword (char k)) 0}) (range (int \a) (inc (int \z))))))
+
+(generator-alphas)
+
+;mapv? not lazy, vector
+
+
+(defn calc-freq
+  "input: [[1 2 3 4] [2 2 0 0] ...]"
+  [li]
   (apply * (reduce (fn [[res1 res2] val]
-                     (prn res1 res2 val)
                      (cond
                        (and (some #(== % 3) val) (some #(== % 2) val)) [(inc res1) (inc res2)]
                        (some #(== % 3) val) [res1 (inc res2)]
                        (some #(== % 2) val) [(inc res1) res2]
                        :else [res1 res2])) [0 0] li)))
 
+; filter 를 사용하면 더 좋을 것 같다.
+; (count (filter #(= (val %) 2) li))
+
+; reduce는 almighty 함수다
+; reduce ban
+
+;Execution error (IllegalArgumentException) at user/eval1375 (form-init8613727876351708500.clj:1).
+;contains? not supported on type: clojure.lang.LazySeq
+
 (defn update-freq [acc-map character]
   (let [key (character-to-keyword character)]
     (when (contains? acc-map key)
       (assoc acc-map key (inc (get acc-map key))))))
+; contains 는 set에 쓰기 좋을 것 같다, 이유는 set은 명시적이지만 다른 건 좀 헷갈림ㅓ
+; (:a acc-map) or (get acc-map key)
+; vector (contains? [1 2 3 4] 3)
+
 
 (defn words-to-freq
   "return: collections of alphabet map. ex. [{:a 0 :b 1 :c 2 ... :z 0} ...]"
@@ -62,34 +84,65 @@
 
 ; frequencies + char-array
 
+(defn logic-part1 [n str-li]
+  (->> str-li
+       (map frequencies)
+       (map vals)
+       (filter #(some (fn [x] (== x n)) %))
+       count))
+
+(defn solve-part1 [path]
+  (let [res1 (->> path
+                  read-input
+                  (logic-part1 2))
+        res2 (->> path
+                  read-input
+                  (logic-part1 3))]
+    (* res1 res2)))
+
 ; part2
 
+(defn get-pairs
+  "return example: [[\"abc\" \"abe\"] ...]"
+  [str-li]
+  (for [str1 str-li
+        str2 str-li]
+    [str1 str2]))
 
-(defn only-one-different? [v1 v2]
-  (->> (map vector (seq v1) (seq v2))
-       (map (fn [c1 c2] (if (== c1 c2) c1) (== c1 c2)))
-       (filter #(== % true))
-       count
-       (== 1)))
+(defn get-common-string [pair]
+  (let [str1 (first pair)
+        str2 (last pair)]
+    (->> (map vector str1 str2)
+         (filter (fn [x] (filter (fn [y] (= (first y) (last y)) x)))))))
+;(filter (fn [c1 c2] (== c1 c2))))))
+;(map str))))
+;(filter (fn [x] (== (count x) (dec (count str1))))))))
 
-(defn get-common-chars [v1 v2]
-  (->> (map vector (seq v1) (seq v2))))
+(def sample-data '(([\a \a] [\b \b] [\c \c] [\d \d] [\e \e])
+                   ([\a \f] [\b \g] [\c \h] [\d \i] [\e \j])))
+(filter (fn [x]
+          (filter
+            (fn [[c1 c2]]
+              (= c1 c2))
+            x))
+        sample-data)
 
-(defn calc2 [str-li]
-  (loop [cur-index 0]
-    (doseq [val str-li]
-      (let [cur-val (nth str-li cur-index)]
-        (when (only-one-different? cur-val val)
-          (get-common-chars cur-val val))))
-    (recur (inc cur-index))))
+(= \a \b)
+(defn only-one-difference? [pairs]
+  (->> pairs
+       (map get-common-string)))
 
+(defn logic-part2 [str-li]
+  (->> str-li
+       get-pairs
+       only-one-difference?))
 
+(defn solve-part2 [path]
+  (->> path
+       read-input
+       logic-part2))
 
-; 하나의 인덱스에만 다른 문자를 가지고 있을 때 다른 문자열 쌍에서 같은 부분만을 리턴하시오
-(comment (->> "resources/input_p2.txt"
-              read-input
-              words-to-freq
-              (map (fn [x]
-                     (vals x)))
-              calc-freq))
+(comment (solve-part1 "resources/input_p2.txt"),
+         (solve-part2 "resources/input_simple_p2.txt"))
 
+(map vector "axcye" "wvxyz")
