@@ -57,15 +57,38 @@
 
 ; 더한 결과 값을 set에 넣고 포함하고 있으면 바로 반환한다
 (defn solve-part2 [li]
-  (let [inf-li (flatten (repeat li))]
+  (let [inf-seq (flatten (repeat li))]
     (loop [temp-set #{}
            cur-seq inf-seq
            acc 0]
-      (if (temp-set (+ acc (first cur-li)))
-        (+ acc (first cur-li))
-        (recur (conj temp-set (+ acc (first cur-li)))
-               (rest cur-li)
-               (+ acc (first cur-li)))))))
+      (if (temp-set (+ acc (first cur-seq)))
+        (+ acc (first cur-seq))
+        (recur (conj temp-set (+ acc (first cur-seq)))
+               (rest cur-seq)
+               (+ acc (first cur-seq)))))))
+
+(defn solve-part2-advanced-1 [li]
+  (let [inf-seq li]
+    (loop [temp-set #{}
+           cur-seq inf-seq
+           acc 0]
+      (let [sum (+ acc (first cur-seq))]
+        (if (temp-set sum)
+          sum
+          (recur (conj temp-set sum)
+                 (rest cur-seq)
+                 sum))))))
+
+(defn solve-part2-advanced-2 [li]
+  (let [inf-partial-sum li]
+    (loop [temp-set #{}
+           cur-seq inf-partial-sum]
+      (let [sum (first cur-seq)]
+        (if (temp-set sum)
+          sum
+          (recur (conj temp-set sum)
+                 (rest cur-seq)))))))
+
 
 (comment
   (-> "resources/input_p1.txt"
@@ -80,7 +103,12 @@
   (-> "resources/input_p1.txt"
       parse-input
       cycle
-      solve-part22),)
+      solve-part2-advanced-1),
+  (->> "resources/input_p1.txt"
+      parse-input
+      cycle
+      (reductions +)
+      solve-part2-advanced-2))
 
 
 ;; aoc exercise 밑에 resources 생성
