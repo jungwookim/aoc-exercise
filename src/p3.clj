@@ -2,33 +2,45 @@
 
 ; part 1 main logics
 
-(defn vec2d [sx sy f]
+(defn vec2d
+  "2d vectors"
+  [sx sy f]
   (mapv (fn [x] (mapv (fn [y] (f x y)) (range sx))) (range sy)))
 
-(defn matrix []
+(defn matrix
+  "init matrix"
+  []
   (vec2d 2000 2000 (constantly -1)))
 
-(defn update-cell [matrix id x y]
+(defn update-cell
+  "update cell to id at position (x, y) on matrix"
+  [matrix id x y]
   (if (neg? (get-in matrix [x y]))
     (update-in matrix [x y] (constantly id))
     (update-in matrix [x y] (constantly 0))))
 
-(defn gen-modified-vals [id ix iy sx sy]
+(defn gen-modified-vals
+  "output: sequence of (target-x target-y id)"
+  [id ix iy sx sy]
   (map (fn [x] (map (fn [y] (list (+ iy x) (+ ix y) id)) (range sx))) (range sy)))
 
-(defn flatten-vals [values]
+(defn flatten-vals
+  "flatten and partition 3"
+  [values]
   (->> values
        flatten
        (partition 3)))
 ;
-(flatten-vals (map (fn [[a b c d e]] (gen-modified-vals a b c d e)) [[100 1 3 4 4] [101 1 3 4 4]]))
+;(flatten-vals (map (fn [[a b c d e]] (gen-modified-vals a b c d e)) [[100 1 3 4 4] [101 1 3 4 4]]))
+;
+;(reduce (fn [acc [x y id]]
+;          (update-cell acc id x y))
+;        (matrix)                                            ; 초기값
+;        (flatten-vals (gen-modified-vals 100 1 3 4 4)))
 
-(reduce (fn [acc [x y id]]
-          (update-cell acc id x y))
-        (matrix)                                            ; 초기값
-        (flatten-vals (gen-modified-vals 100 1 3 4 4)))
-
-(defn logic-part1 [data]
+(defn logic-part1
+  "update each one"
+  [data]
   (reduce (fn [acc [x y id]]
             (update-cell acc id x y))
           (matrix)                                          ; 초기값
@@ -82,7 +94,8 @@
        prepare-data
        (map (fn [[id _ [sx sy]]] (list id (* sx sy))))))
 
-(defn logic-part2 [path data]
+(defn logic-part2
+  [path data]
   (let [current-id-count (->> data
                               logic-part1
                               flatten
@@ -93,6 +106,7 @@
     (-> (filter (fn [[x y]] (== y (get current-id-count x -1))) total-count-by-id)
         first
         first)))
+
 (defn solve-part2 [path]
   (->> path
        prepare-data
