@@ -14,7 +14,7 @@
     (update-in matrix [x y] (constantly 0))))
 
 (defn gen-modified-vals [id ix iy sx sy]
-  (map (fn [x] (map (fn [y] (list (+ ix x) (+ iy y) id)) (range sx))) (range sy)))
+  (map (fn [x] (map (fn [y] (list (+ iy x) (+ ix y) id)) (range sx))) (range sy)))
 
 (defn flatten-vals [values]
   (->> values
@@ -72,10 +72,17 @@
        prepare-data
        logic-part1
        flatten
-       (filter #(== % 0))
+       (filter #(zero? %))
        count))
+
+(defn solve-part2 [path]
+  (->> path
+       prepare-data))
 
 (comment
   (solve-part1 "resources/sample_input_p3.txt"),
-  (solve-part1 "resources/input_p3.txt"),)
+  (solve-part1 "resources/input_p3.txt"),
+  (solve-part2 "resources/sample_input_p3.txt"),
+  (solve-part2 "resources/input_p3.txt"))
+
 
