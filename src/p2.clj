@@ -122,12 +122,10 @@
                    ([\a \f] [\b \g] [\c \h] [\d \i] [\e \j])))
 (filter (fn [x]
           (filter
-            (fn [[c1 c2]]
-              (= c1 c2))
+            (fn [y]
+              (= (first y) (last y)))
             x))
         sample-data)
-
-(= \a \b)
 (defn only-one-difference? [pairs]
   (->> pairs
        (map get-common-string)))
@@ -143,6 +141,6 @@
        logic-part2))
 
 (comment (solve-part1 "resources/input_p2.txt"),
-         (solve-part2 "resources/input_simple_p2.txt"))
+         (solve-part2 "resources/sample_input_p2.txt"))
 
 (map vector "axcye" "wvxyz")
