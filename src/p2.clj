@@ -109,11 +109,39 @@
         str2 str-li]
     [str1 str2]))
 
+(defn get-count-word [target seq]
+  (->> (list (count seq) seq) ;(0 ())
+      (map (fn [x] (prn ">>>" x)))))
+
+(0 ())
+(3 ([\a \a] [\c \c] [\e \e]))
+
+">>>" 3
+">>>" ([\a \a] [\c \c] [\e \e])
+">>>" 0
+">>>" ()
+">>>" 0
+">>>" ()
+[["abcde" "abcdee"] ...] -> "abcde"
+
+"abcd"
+
+((\a \a) (\b \b) (\c \c)) ; map 이나 filter 결 seq(lazy)
+
+(list (count ((\a \a) () (\a \w))) ((\a \a) () (\a \w)))
+(3 ((\a \a) (\a \b) (\a \w)))
+
+
+([\a \a])
 (defn get-common-string [pair]
   (let [str1 (first pair)
-        str2 (last pair)]
-    (->> (map vector str1 str2)
-         (filter (fn [x] (filter (fn [y] (= (first y) (last y)) x)))))))
+        str2 (last pair)
+        char-pairs (mapv vector (first pair) (last pair))]
+    (->> (filter (fn [[c1 c2]] (= c1 c2)) char-pairs)
+         (get-count-word (count (first pair))))))
+;(map (fn [x] (list (count x) (map str x)))))))
+;(->> (map vector str1 str2)
+;     (filter (fn [x] (filter (fn [y] (= (first y) (last y)) x))))]))
 ;(filter (fn [c1 c2] (== c1 c2))))))
 ;(map str))))
 ;(filter (fn [x] (== (count x) (dec (count str1))))))))
@@ -126,6 +154,10 @@
               (= (first y) (last y)))
             x))
         sample-data)
+
+(defn find-differenct-count [str1 str2]
+  (map (fn [a b] (...)) str1 str2))
+
 (defn only-one-difference? [pairs]
   (->> pairs
        (map get-common-string)))
@@ -142,5 +174,6 @@
 
 (comment (solve-part1 "resources/input_p2.txt"),
          (solve-part2 "resources/sample_input_p2.txt"))
+
 
 (map vector "axcye" "wvxyz")
