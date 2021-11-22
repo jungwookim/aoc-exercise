@@ -23,17 +23,19 @@
    :minute    minute
    :who       who})
 
-; condp라는게 있음, 구현해보겠음 ; extract-xxx는 let binding을 하는게 좋을 듯
+(defn reverse-includes? [str1 str2]
+  (s/includes? str2 str1))
+
 (defn prepare-data [path]
   (->> path
        read-input
        (map (fn [x]
               (let [timestamp (extract-timestamp x)
                     minute (extract-minute x)]
-                (cond
-                  (s/includes? x "wakes") (->element :wake-up timestamp minute nil)
-                  (s/includes? x "falls") (->element :fall-asleep timestamp minute nil)
-                  (s/includes? x "shift") (->element :shift timestamp minute (extract-guard-id x))))))
+                (condp reverse-includes? x
+                  "wakes" (->element :wake-up timestamp minute nil)
+                  "falls" (->element :fall-asleep timestamp minute nil)
+                  "shift" (->element :shift timestamp minute (extract-guard-id x))))))
        (sort-by :timestamp)))
 
 
