@@ -1,4 +1,4 @@
-(ns p1)
+(ns p2018_day1)
 
 ;(with-open [rdr (clojure.java.io/reader "src/input_p1.txt")]
 ;  (as-> [] values

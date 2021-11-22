@@ -1,4 +1,4 @@
-(ns p3)
+(ns p2018_day3)
 
 ; part 1 main logics
 

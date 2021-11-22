@@ -1,4 +1,4 @@
-(ns p5)
+(ns p2018_day5)
 
 ; read input
 
