@@ -55,8 +55,6 @@
                                                        (range 60))))
                {})))
 
-
-
 (defn init-guard-working-time [m-seq]
   (->> m-seq
        get-all-guard-ids
@@ -64,7 +62,7 @@
                  (assoc acc (keyword guard-id) []))
                {})))
 
-(defn map-vals-flatten
+(defn guard-mins-flatten
   "input: {:99 [40 41 42 43 44 45 46 47 48 49]}"
   [m]
   (let [guard-id (first (keys m))
@@ -72,6 +70,7 @@
     (map (fn [min]
            {(keyword guard-id) min})
          minutes)))
+
 (defn interpolate-data [m-seq]
   (->> (reduce (fn [{acc-data      :acc-data
                      current-guard :current-guard}
@@ -91,9 +90,8 @@
               (let [x (into [] (partition 2 times))]
                 (map (fn [[start end]] {(keyword guard-id) (range start end)}) x))))
        flatten
-       (map (fn [x] (map-vals-flatten x)))
+       (map (fn [x] (guard-mins-flatten x)))
        flatten))
-
 
 (defn update-data [data val]
       (let [guard-id (keyword (first (keys val)))
