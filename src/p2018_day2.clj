@@ -1,4 +1,4 @@
-(ns p2)
+(ns p2018_day2)
 
 ; part 1
 (defn read-input
