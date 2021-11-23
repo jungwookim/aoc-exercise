@@ -45,10 +45,8 @@
 (defn find-sum-of-distances-from-point-to-sources [point sources]
   (->> sources
        (reduce (fn [acc source]
-                 (update acc point #(+ % (manhattan-distance source point))))
-               {point 0})
-       vals
-       first))
+                 (+ acc (manhattan-distance source point)))
+               0)))
 
 (defn on-infinite-point? [[x y]
                           {:keys [min-x min-y max-x max-y]}]
