@@ -50,7 +50,7 @@
   (->> sources
        (map (fn [x]
               {:distance (manhattan-distance x point)
-               :source x}))
+               :source   x}))
        (apply min-key :distance)
        :source))
 
@@ -69,12 +69,12 @@
                      y (range min-y (inc max-y))]
                  [x y])]
     (reduce (fn [{inf-points :inf-points
-                  f-points :f-points
-                  :as m} [x y]]
-              (do something) ; infinite points에 있으면 inf-points에 추가, 그게 아니라면 f-points에 키를 좌표로하고 nearest points 추가
-              {:inf-points
-               :f-points}
-              points))))
+                  f-points   :f-points
+                  :as        m} [x y]]
+              (do something))                               ; infinite points에 있으면 inf-points에 추가, 그게 아니라면 f-points에 키를 좌표로하고 nearest points 추가
+            {:inf-points
+             :f-points}
+            points)))
 
 (defn solve-part1 [path]
   (->> (prepare-data path)
@@ -92,6 +92,6 @@
   (logic-part1 [[1 2] [4 5]]),
   (solve-part1 sample-input-path),
   (solve-part1 input-path),)
-  ;(solve-part2 sample-input-path),
-  ;(solve-part2 input-path),)
+;(solve-part2 sample-input-path),
+;(solve-part2 input-path),)
 
