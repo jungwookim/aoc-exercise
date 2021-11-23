@@ -18,8 +18,6 @@
 
 ; 아니면... 내부에 좌표에서 가장 가까운 source를 찾고
 
-
-
 ; read input
 
 (defn read-input [path]
@@ -39,57 +37,101 @@
      :max-y (apply max ys)
      :min-y (apply min ys)}))
 
+(defn abs [n] (max n (- n)))
+
 (defn manhattan-distance [point1 point2]
-  (apply + (map (fn [[a b]]
-                  (Math/abs (- a b)))
-                (zipmap point1 point2))))
+  (apply + (map (fn [a b]
+                  (abs (- a b)))
+                point1 point2)))
 
 (defn find-closest-source
   "input: point sources [1 2] [[5 5] [1 4] ...], output: one source [1 4]"
   [point sources]
-  (->> sources
-       (map (fn [x]
-              {:distance (manhattan-distance x point)
-               :source   x}))
-       (apply min-key :distance)
-       :source))
+  (let [m-seq (->> sources
+                   (map (fn [x]
+                          {:distance (manhattan-distance x point)
+                           :source   x})))]
+    (let [{min-distance :distance
+           source       :source} (apply min-key :distance m-seq)]
+      (if (> (count (filter #(= (:distance %) min-distance) m-seq)) 1)
+        :conflict
+        source))))
 
-(defn on-infinite-point? [x y min-x min-y max-x max-y]
-  (or (= x min-x)
-      (= y min-y)
-      (= x max-x)
-      (= y max-y)))
+(defn on-infinite-point? [[x y]
+                          {min-x :min-x
+                           min-y :min-y
+                           max-x :max-x
+                           max-y :max-y}]
+  (or (<= x min-x)
+      (<= y min-y)
+      (>= x max-x)
+      (>= y max-y)))
 
-(defn logic-part1 [sources]
-  (let [{max-x :max-x
-         min-x :min-x
-         max-y :max-y
-         min-y :min-y} (min-max-x-y sources)
-        points (for [x (range min-x (inc max-x))
-                     y (range min-y (inc max-y))]
-                 [x y])]
-    (reduce (fn [{inf-points :inf-points
-                  f-points   :f-points
-                  :as        m} [x y]]
-              (do something))                               ; infinite points에 있으면 inf-points에 추가, 그게 아니라면 f-points에 키를 좌표로하고 nearest points 추가
-            {:inf-points
-             :f-points}
+(defn make-matrix [min-x min-y max-x max-y]
+  (for [x (range min-x (inc max-x))
+        y (range min-y (inc max-y))]
+    [x y]))
+
+(defn update-infinite-areas [m closest-source]
+  (update m :inf-points #(conj % closest-source)))
+
+(defn update-finite-areas [m point closest-source]
+  (update-in m [:f-points point] (constantly closest-source)))
+
+(defn logic-part1 [sources
+                   {max-x :max-x
+                    max-y :max-y
+                    :as   m1}]
+  (let [points (make-matrix 0 0 max-x max-y)]
+    (reduce (fn [acc-m
+                 point]
+              (let [closest-source (find-closest-source point sources)]
+                (if (on-infinite-point? point m1)           ; infinite points에 있으면
+                  (update-infinite-areas acc-m closest-source) ; inf-points에 point 추가,
+                  (update-finite-areas acc-m point closest-source)))) ; 그게 아니라면 f-points에 키를 좌표로하고 nearest points 추가))
+            {:inf-points #{}
+             :f-points   {}}
             points)))
 
+(defn extract-finite-area [{inf-points :inf-points
+                            f-points   :f-points}]
+  (remove (fn [[_ closest-source]]
+            (contains? inf-points closest-source))
+          f-points))
+
+(defn count-key [m-seq]
+  (reduce (fn [acc-m val]
+            (let [k (keyword (str val))]
+              (if (k acc-m)
+                (update acc-m k inc)
+                (update acc-m k (constantly 0)))))
+          {}
+          (set (map #(first (keys %)) m-seq))))
+
+(defn find-largest-finite-area-size [finite-data]
+  (->> (map (fn [[k v]] {v k}) finite-data)
+       count-key))
+
 (defn solve-part1 [path]
-  (->> (prepare-data path)
-       logic-part1))
+  (let [sources (prepare-data path)]
+    (->> sources
+         min-max-x-y
+         (logic-part1 sources)
+         extract-finite-area
+         find-largest-finite-area-size)))
+
 
 (def sample-input-path "resources/sample_input_p6.txt")
 (def input-path "resources/input_p6.txt")
 
-
 (comment
   (prepare-data sample-input-path),
   (min-max-x-y (prepare-data sample-input-path)),
-  (manhattan-distance [1 -2] [0 0]),
-  (find-closest-source [0 0] [[1 2] [4 5]]),
-  (logic-part1 [[1 2] [4 5]]),
+  (manhattan-distance [8 6] [5 5]),
+  (manhattan-distance [5 5] [8 6]),
+  (find-closest-source [8 5] [[5 5] [8 3] [8 9]]),
+  (find-closest-source [0 0] [[1 2] [2 1]]),
+  (update-finite-areas {:f-points {}} [1 2] [5 6]),
   (solve-part1 sample-input-path),
   (solve-part1 input-path),)
 ;(solve-part2 sample-input-path),
