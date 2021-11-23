@@ -10,19 +10,11 @@
       (s/split #"\n")
       first))
 
-(defn upper-case? [char]
-  (= (s/upper-case char) (str char)))
-
-
-(defn lower-case? [char]
-  (= (s/lower-case char) (str char)))
-
 (defn remove? [char1 char2]
   (if (or (nil? char1)
           (nil? char2))
     false
-    (and (or (= (upper-case? char1) (lower-case? char2))
-             (= (lower-case? char1) (upper-case? char2)))
+    (and (not= char1 char2)
          (= (s/upper-case char1) (s/upper-case char2)))))
 
 (defn squeeze-string [string]
@@ -33,9 +25,6 @@
               (conj new-seq val)))
           []
           string))
-
-; peek pop
-; require 사용하기
 
 (defn solve-part1 [path]
   (-> path
@@ -48,10 +37,10 @@
 
 (def alphabets (map char (range 97 123)))
 
-(defn delete-units-in-string [char string]
+(defn delete-units-in-string [character string]
   (-> string
-      (s/replace (s/lower-case char) "")
-      (s/replace (s/upper-case char) "")))
+      (s/replace (s/lower-case character) "")
+      (s/replace (s/upper-case character) "")))
 
 (defn removed-seq-by-unit-seq [string]
   (->> alphabets
