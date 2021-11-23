@@ -109,50 +109,37 @@
         str2 str-v]
     [str1 str2]))
 
-(defn get-count-word [target seq]
-  (->> (list (count seq) seq) ;(0 ())
-      (map (fn [x] (prn ">>>" x)))))
-
-(def sample-data '(([\a \a] [\b \b] [\c \c] [\d \d] [\e \e])
-                   ([\a \f] [\b \g] [\c \h] [\d \i] [\e \j])))
-(filter (fn [x]
-          (filter
-            (fn [y]
-              (= (first y) (last y)))
-            x))
-        sample-data)
-
-(defn get-count-word [str]
-  [{:count (count str) :word str}])
-
-(defn find-different-count [[str1 str2]]
+(defn remove-different-char-in-string [[str1 str2]]
   (->> (map (fn [char1 char2]
               (when (= char1 char2)
                 char1))
             str1 str2)
-       (apply str)
-       prn))
-       ;(filter #(not= % ""))))
-       ;(remove nil?)
-       ;(apply str)
-       ;get-count-word
-       ;(filter (fn [x] (= (:count x) (dec (count str1)))))
-       ;first
-       ;:word
-       ;(remove nil?)))
+       (apply str)))
 
+(defn total-string-size [str]
+  (count str))
 
-(defn logic-part2 [str-v]
+(defn logic-part2 [total-string-size str-v]
   (->> str-v
        get-pairs
-       (map (fn [x] (find-different-count x)))))
+       (map (fn [x] (remove-different-char-in-string x)))
+       (remove #(= "" %))
+       (filter (fn [x] (= (count x) (dec total-string-size))))
+       first))
 
 (defn solve-part2 [path]
-  (->> path
-       read-input
-       logic-part2))
+  (let [total-string-size (-> path
+                               read-input
+                               first
+                               total-string-size)]
+    (->> path
+         read-input
+         (logic-part2 total-string-size))))
+
 
 (comment (solve-part1 "resources/input_p2.txt"),
-         (find-different-count ["abcde" "abce"]),
-         (find-different-count ["bbb" "bba"]),
-         (solve-part2 "resources/sample_input_p2.txt"))
+         (remove-different-char-in-string ["abcde" "abcee"]),
+         (remove-different-char-in-string ["bbb" "bba"]),
+         (solve-part2 "resources/sample_input_p2.txt"),
+         (solve-part2 "resources/input_p2.txt"))
+
