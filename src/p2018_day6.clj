@@ -44,6 +44,7 @@
                   (abs (- a b)))
                 point1 point2)))
 
+; for part 1
 (defn find-closest-source
   "input: point sources [1 2] [[5 5] [1 4] ...], output: one source [1 4]"
   [point sources]
@@ -57,11 +58,22 @@
         :conflict
         source))))
 
+; for part 2
+(defn find-sum-of-distances-from-point-to-sources [point sources]
+  (->> sources
+       (reduce (fn [acc source]
+                 (update acc point #(+ % (manhattan-distance source point))))
+               {point 0})
+       vals
+       first))
+
+
+; 한가지 타입의 return type이 좋을 것 같다
+; 빈 seq
+
+
 (defn on-infinite-point? [[x y]
-                          {min-x :min-x
-                           min-y :min-y
-                           max-x :max-x
-                           max-y :max-y}]
+                          {:keys [min-x min-y max-x max-y]}]
   (or (<= x min-x)
       (<= y min-y)
       (>= x max-x)
@@ -93,24 +105,46 @@
              :f-points   {}}
             points)))
 
+(defn logic-part2 [sources
+                   {max-x :max-x
+                    max-y :max-y}]
+  (let [points (make-matrix 0 0 max-x max-y)]
+    (reduce (fn [acc-v
+                 point]
+              (let [sum-of-distances (find-sum-of-distances-from-point-to-sources point sources)]
+                  (conj acc-v sum-of-distances)))
+            []
+            points)))
+
+
 (defn extract-finite-area [{inf-points :inf-points
                             f-points   :f-points}]
   (remove (fn [[_ closest-source]]
             (contains? inf-points closest-source))
           f-points))
 
-(defn count-key [m-seq]
-  (reduce (fn [acc-m val]
-            (let [k (keyword (str val))]
-              (if (k acc-m)
-                (update acc-m k inc)
-                (update acc-m k (constantly 0)))))
+
+(defn count-keys [m-seq]
+  (reduce (fn [acc-m value]
+            (if (get acc-m value)
+              (update acc-m value inc)
+              (update acc-m value (constantly 1))))
           {}
-          (set (map #(first (keys %)) m-seq))))
+          (map #(first (keys %)) m-seq)))
+
+;"{(5 5) 17, (3 4) 9}"
+;"agg이 목적임"
+; group-by
+; frequencies
+
+;(map #(first (keys %)))
+;       frequencies)
 
 (defn find-largest-finite-area-size [finite-data]
   (->> (map (fn [[k v]] {v k}) finite-data)
-       count-key))
+       count-keys
+       (apply max-key val)
+       last))
 
 (defn solve-part1 [path]
   (let [sources (prepare-data path)]
@@ -120,9 +154,21 @@
          extract-finite-area
          find-largest-finite-area-size)))
 
+(def sample-max 32)
+(def full-max 10000)
+
+(defn solve-part2 [path n]
+  (let [sources (prepare-data path)]
+    (->> sources
+         min-max-x-y
+         (logic-part2 sources)
+         (filter #(> n %))
+         count)))
+
 
 (def sample-input-path "resources/sample_input_p6.txt")
 (def input-path "resources/input_p6.txt")
+
 
 (comment
   (prepare-data sample-input-path),
@@ -132,8 +178,10 @@
   (find-closest-source [8 5] [[5 5] [8 3] [8 9]]),
   (find-closest-source [0 0] [[1 2] [2 1]]),
   (update-finite-areas {:f-points {}} [1 2] [5 6]),
+  (find-sum-of-distances-from-point-to-sources [0 0] [[1 2] [3 4]]),
   (solve-part1 sample-input-path),
-  (solve-part1 input-path),)
-;(solve-part2 sample-input-path),
-;(solve-part2 input-path),)
+  (solve-part1 input-path),
+  (solve-part2 sample-input-path sample-max),
+  (solve-part2 input-path full-max),)
+
 
