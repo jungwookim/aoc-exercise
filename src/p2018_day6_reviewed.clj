@@ -1,6 +1,12 @@
 (ns p2018_day6_reviewed
   (:require [clojure.string :as s]))
 
+
+(def sample-max 32)
+(def full-max 10000)
+(def sample-input-path "resources/sample_input_p6.txt")
+(def input-path "resources/input_p6.txt")
+
 ; read input
 
 (defn read-input [path]
@@ -31,10 +37,9 @@
 (defn find-closest-source
   "input: point sources [1 2] [[5 5] [1 4] ...], output: one source [1 4]"
   [point sources]
-  (let [m-seq (->> sources
-                   (map (fn [x]
-                          {:distance (manhattan-distance x point)
-                           :source   x})))]
+  (let [m-seq (map (fn [x]
+                     {:distance (manhattan-distance x point)
+                      :source   x}) sources)]
     (let [{min-distance :distance
            source       :source} (apply min-key :distance m-seq)]
       (if (> (count (filter #(= (:distance %) min-distance) m-seq)) 1)
@@ -43,10 +48,8 @@
 
 ; for part 2
 (defn find-sum-of-distances-from-point-to-sources [point sources]
-  (->> sources
-       (reduce (fn [acc source]
-                 (+ acc (manhattan-distance source point)))
-               0)))
+  (->> (map (fn [x] (manhattan-distance x point)) sources)
+       (apply +)))
 
 (defn on-infinite-point? [[x y]
                           {:keys [min-x min-y max-x max-y]}]
@@ -67,8 +70,7 @@
   (update-in m [:f-points point] (constantly closest-source)))
 
 (defn processing-part1 [sources
-                        {max-x :max-x
-                         max-y :max-y
+                        {:keys [max-x max-y]
                          :as   m1}]
   (let [points (make-matrix 0 0 max-x max-y)]
     (reduce (fn [acc-m
@@ -82,8 +84,7 @@
             points)))
 
 (defn processing-part2 [sources
-                        {max-x :max-x
-                         max-y :max-y}]
+                        {:keys [max-x max-y]}] ; as, or
   (let [points (make-matrix 0 0 max-x max-y)]
     (reduce (fn [acc-v
                  point]
@@ -92,14 +93,13 @@
             []
             points)))
 
-(defn extract-finite-area [{inf-points :inf-points
-                            f-points   :f-points}]
+(defn extract-finite-area [{:keys [inf-points f-points]}]
   (remove (fn [[_ closest-source]]
             (contains? inf-points closest-source))
           f-points))
 
 (defn find-largest-finite-area-size [finite-data]
-  (->> (map (fn [[k v]] {v k}) finite-data)
+  (->> (map (fn [[k v]] {v k}) finite-data) ; map-invert
        (map #(first (keys %)))
        frequencies
        (apply max-key val)
@@ -124,17 +124,11 @@
        (filter #(> n %))
        count))
 
-(def sample-max 32)
-(def full-max 10000)
-
 (defn solve-part2 [path n]
   (let [parsed-data (parsing-part1 path)
         min-max-x-y-data (min-max-x-y parsed-data)]
     (->> (processing-part2 parsed-data min-max-x-y-data)
          (aggregating-part2 n))))
-
-(def sample-input-path "resources/sample_input_p6.txt")
-(def input-path "resources/input_p6.txt")
 
 (comment
   (prepare-data sample-input-path),
