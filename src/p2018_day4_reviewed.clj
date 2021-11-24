@@ -62,6 +62,7 @@
                  (assoc acc (keyword guard-id) []))
                {})))
 
+; to improve
 (defn guard-minutes-each-minutes
   "input: {:99 [40 41]}, output: ({:99 40} {:99 41})"
   [m-seq]
