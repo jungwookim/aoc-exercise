@@ -1,0 +1,211 @@
+(ns p2018_day7_reviewed
+  (:require [clojure.string :as s]
+            [clojure.java.io :as io]))
+
+(defn read-input [path]
+  (-> (slurp path)
+      (s/split #"\n")))
+
+; 이거는 [from to]를 hash-map의 key로 사용하기 위해서 가독성을 위해 {:from from :to to} 로 바꾸지 않기로 함
+(defn extract-from-to [string-info]
+  [(nth string-info 5) (nth string-info 36)])
+
+(defn init-work-data [v-seq]
+  (reduce (fn [acc x]
+            (assoc acc x #{}))
+          {}
+          (set (flatten v-seq))))
+
+(defn group-by-val [v-seq]
+  (reduce (fn [acc-m [from to]]
+            (update acc-m to #(conj % from)))
+          (init-work-data v-seq)
+          v-seq))
+
+; 근데 이렇게 하면 aggregation 하지 못한 값들에 대해서 누락된 key가 있을 수 있음. 이럴 경우에는 어떻게 하는게 나은가?
+(defn group-by-val2 [v-seq]
+  (->> (group-by second v-seq)
+       (map (fn [[k v]]
+              [k (set (map (fn [[k2 _]] k2) v))]))
+       (into {})))
+
+(defn parsing [path]
+  (->> (read-input path)
+       (map extract-from-to)
+       group-by-val))
+
+(defn init-worker-state
+  "n: # of worker"
+  [n]
+  (reduce (fn [acc-m x]
+            (assoc acc-m x {:work :not-working
+                            :time -1}))
+          {}
+          (range n)))
+
+(defn find-can-work-workers [worker-state]
+  (->> (filter (fn [[_ {:keys [_ time]}]]
+                 (neg? time))
+               worker-state)
+       (map (fn [[worker _]] worker))))
+
+(defn alphabet-to-second [a]
+  (- (int a) 4))
+
+(defn sample-alphabet-to-second [a]
+  (- (int a) 64))
+
+(defn matching-next-work-for-workers [m worker-state]
+  (let [can-work-workers (find-can-work-workers worker-state)
+        next-works (->> (filter (fn [[_ pre-work]] (empty? pre-work)) m)
+                        (sort-by key)
+                        (map first))]
+    (->> (map (fn [worker next-work] {worker {:work next-work
+                                              :time (sample-alphabet-to-second next-work)}})
+              can-work-workers
+              next-works))))
+
+(defn will-remove-work [worker-state]
+  (keep (fn [[_ {:keys [work time]}]]
+          (when (= 1 time))
+          work)
+        worker-state))
+
+(defn update-multiple-pre-work-done [will-remove-works m]
+  (->> (map (fn [[work pre-work]]
+              [work (clojure.set/difference pre-work (set will-remove-works))])
+            m)
+       (into {})))
+
+(defn update-new-work [state matched-work]
+  (reduce (fn [acc-state work]
+            (update acc-state :worker #(conj % work)))
+          state
+          matched-work))
+
+
+(defn update-worker-time [worker-state]
+  (->> (keys worker-state)
+       (reduce (fn [acc-worker-state key]
+                 (update-in
+                   acc-worker-state
+                   [key :time]
+                   #(dec %)))
+               worker-state)))
+
+(defn update-worker-work [worker-state]
+  (->> (keys worker-state)
+       (reduce (fn
+                 [acc-worker-state x]
+                 (update-in
+                   acc-worker-state
+                   [x :work]
+                   #(if (zero? (get-in acc-worker-state [x :time]))
+                      :not-working
+                      %)))
+               worker-state)))
+
+(defn update-worker-state [state worker-state]
+  (update state :worker (constantly worker-state)))
+
+(defn update-worker [state]
+  (->> (:worker state)
+       update-worker-work
+       update-worker-time
+       (update-worker-state state)))
+
+(defn update-remain-work [state matched-work will-remove-works]
+  (update
+    state
+    :remain-work
+    (constantly (->> (reduce (fn [acc-m val]
+                               (dissoc acc-m (:work (first (vals val)))))
+                             (:remain-work state)
+                             matched-work)
+                     (update-multiple-pre-work-done will-remove-works)))))
+
+(defn update-done [state]
+  (->> (keys (:worker state))
+       (reduce (fn [acc-state key]
+                 (if (zero? (get-in acc-state [:worker key :time]))
+                   (update acc-state :done #(conj % (get-in acc-state [:worker key :work])))
+                   acc-state))
+               state)))
+
+(def sample-worker-n 2)
+(def full-worker-n 5)
+
+;(defn solve-part2 [path n]
+;  (->> (parsing path)
+;       (processing-part2 n)))
+
+(def sample-input-path "resources/sample_input_p7.txt")
+(def input-path "resources/input_p7.txt")
+(def state {:time        0
+            :worker      {0 {:work :not-working
+                             :time 0}
+                          1 {:work :not-working
+                             :time 0}}
+            :remain-work {\A #{\C}, \B #{\A}, \C #{}, \D #{\A}, \E #{\B \D \F}, \F #{\C}}
+            :done        []})
+
+(defn agg-next-work [can-work-workers next-works]
+  (map (fn [worker next-work] {worker {:work next-work
+                                       :time (sample-alphabet-to-second next-work)}})
+       can-work-workers
+       next-works))
+
+(defn match [state matched-work]
+  (->> matched-work
+       (update-new-work state)))
+
+(defn process [state]
+  (let [can-work-workers (find-can-work-workers (:worker state))
+        next-works (->> (filter (fn [[_ pre-work]] (empty? pre-work)) (:remain-work state))
+                        (sort-by key)
+                        (map first))
+        matched-work (agg-next-work can-work-workers next-works)
+        will-remove-works (will-remove-work (:worker state))]
+    (-> state
+        (match matched-work)
+        (update :time inc)
+        update-worker
+        (update-remain-work matched-work will-remove-works))))
+
+(defn init-state [path]
+  {:time        -1
+   :worker      (init-worker-state sample-worker-n)
+   :remain-work (parsing path)
+   :done        []})
+
+
+(defn everyone-not-working [worker-state]
+  (every? (fn [[_ {:keys [work _]}]] (= :not-working work)) worker-state))
+
+(defn break-point [state]
+  (and (empty? (:remain-work state))
+       (everyone-not-working (:worker state))))
+;
+;(defn solve-part2 [path]
+;  (->> (parsing path)
+;     processing-part1
+;     aggregating-part1))
+(comment
+  (let [can-work-workers (find-can-work-workers (:worker state))
+        next-works (->> (filter (fn [[_ pre-work]] (empty? pre-work)) (:remain-work state))
+                        (sort-by key)
+                        (map first))
+        matched-work (agg-next-work can-work-workers next-works)
+        will-remove-works (will-remove-work (:worker state))]
+    (-> state
+        (match matched-work)
+        (update :time inc)
+        update-worker
+        (update-remain-work matched-work will-remove-works))),
+  (->> (init-state sample-input-path)
+       process)
+  ;(drop-while break-point)),
+  (update-worker-time {0 {:work \C, :time 3}, 1 {:work :not-working, :time 0}}),
+  (update-worker-work {0 {:work \C, :time :not-working}, 1 {:work :not-working, :time 0}}),
+  (solve-part2 sample-input-path sample-worker-n),
+  (solve-part2 input-path full-worker-n),)
