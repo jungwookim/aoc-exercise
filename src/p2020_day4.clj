@@ -1,6 +1,7 @@
 (ns p2020_day4
   (:require [clojure.string :as s]))
 
+;clojure spec
 (defn read-input [path]
   (-> path
       slurp
