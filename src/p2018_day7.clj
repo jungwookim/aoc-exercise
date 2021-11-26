@@ -216,7 +216,6 @@
                               2 {:work :not-working, :time :not-working},
                               3 {:work :not-working, :time :not-working},
                               4 {:work :not-working, :time :not-working}}),)
-  (update-multiple-pre-work-done '(\F \C) {\A #{\C}, \B #{\A}, \D #{}, \C #{}, \E #{\B \D \F}, \F #{\C}}),
   (processing-part2 sample-worker-n {\A #{\C}, \B #{\A}, \C #{}, \D #{\A}, \E #{\B \D \F}, \F #{\C}}),
   (update-old-work {0 {:work \A, :time 5},
                     1 {:work \B, :time 1},

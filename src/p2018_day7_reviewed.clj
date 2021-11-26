@@ -28,6 +28,12 @@
             (assoc acc x #{}))
           {}
           (set (flatten v-seq))))
+;(init-work-data '([\C \A] [\C \F] [\A \B] [\A \D] [\B \E] [\D \E] [\F \E])),
+
+(defn init-work-data-2 [v-seq]
+  (->> (for [key (set (flatten v-seq))]
+         {key #{}})
+       (into {})))
 
 (defn group-by-val [v-seq]
   (reduce (fn [acc-m [from to]]
@@ -147,12 +153,11 @@
        (update-new-work state)))
 
 (defn process [state]
-  (let [can-work-workers (find-can-work-workers (:worker state))
+  (let [available-workers (find-can-work-workers (:worker state))
         next-works (->> (filter (fn [[_ pre-work]] (empty? pre-work)) (:remain-work state))
                         (sort-by key)
                         (map first))
-        matched-work (agg-next-work can-work-workers next-works)]
-    (prn state,)
+        matched-work (agg-next-work available-workers next-works)]
     (-> state
         (match matched-work)
         (update :time inc)
@@ -180,6 +185,10 @@
        :time))
 
 (comment
+  (init-work-data '([\C \A] [\C \F] [\A \B] [\A \D] [\B \E] [\D \E] [\F \E])),
+  (init-work-data-2 '([\C \A] [\C \F] [\A \B] [\A \D] [\B \E] [\D \E] [\F \E])),
+  (group-by-val '([\C \A] [\C \F] [\A \B] [\A \D] [\B \E] [\D \E] [\F \E])),
+  (group-by-val2 '([\C \A] [\C \F] [\A \B] [\A \D] [\B \E] [\D \E] [\F \E])),
   (process state),
   (solve-part2 sample-input-path sample-worker-n),
   (solve-part2 input-path full-worker-n),)
