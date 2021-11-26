@@ -59,11 +59,11 @@
     :break1?
     (constantly (break-point-part1 state))))
 
-(defn update-state-break2 [state data]
+(defn update-state-break2 [state data-size]
   (update
     state
     :break2?
-    (constantly (index-out-of-bounds (count data) (:idx state)))))
+    (constantly (index-out-of-bounds data-size (:idx state)))))
 
 (defn processing
   "state: [[\"nop\" \"+0\"] [\"acc\" \"+1\"] ... ]\n"
@@ -74,7 +74,7 @@
           "acc" (update-in-case-of-acc state idx value)
           "jmp" (update-in-case-of-jmp state idx value))
         (update-state-break1)
-        (update-state-break2 data))))
+        (update-state-break2 (count data)))))
 
 (defn agg-ans [data state]
   (- (:acc-val state) (->> (:visited state)
