@@ -1,7 +1,15 @@
-(ns p2020_day4
+(ns p2020_day4_reviewed
   (:require [clojure.string :as s]))
 
 ;clojure spec
+
+(def required-fields-map {:ecl "ecl"
+                          :pid "pid"
+                          :eyr "eyr"
+                          :hcl "hcl"
+                          :byr "byr"
+                          :iyr "iyr"
+                          :hgt "hgt"})
 
 (defn read-input [path]
   (-> path
@@ -20,35 +28,36 @@
               (let [[key value] (s/split x #":")]
                 {:key key :value value})))))
 
-(def required-key-set #{"ecl" "pid" "eyr" "hcl" "byr" "iyr" "hgt"})
-
 (defn part1-passport-valid? [m-seq]
-  (clojure.set/subset? required-key-set (set (map #(:key %) m-seq))))
+  (clojure.set/subset? (vals required-fields-map) (set (map #(:key %) m-seq))))
+
+(defn filter-matching-fields [m-seq field]
+  (->> m-seq
+       (filter #(= (:key %) field))
+       first))
+
+(defn valid-between-numbers [string-n n1 n2]
+  (and (boolean string-n)
+       (<= n1 (Integer/parseInt string-n))
+       (>= n2 (Integer/parseInt string-n))))
 
 (defn part2-passport-valid? [m-seq]
-  (let [{_ :key byr-val :value} (first (filter #(= (:key %) "byr") m-seq))
-        {_ :key iyr-val :value} (first (filter #(= (:key %) "iyr") m-seq))
-        {_ :key eyr-val :value} (first (filter #(= (:key %) "eyr") m-seq))
-        {_ :key hgt-val :value} (first (filter #(= (:key %) "hgt") m-seq))
-        {_ :key hcl-val :value} (first (filter #(= (:key %) "hcl") m-seq))
-        {_ :key ecl-val :value} (first (filter #(= (:key %) "ecl") m-seq))
-        {_ :key pid-val :value} (first (filter #(= (:key %) "pid") m-seq))]
-    (let [valid-byr (and (boolean byr-val)
-                         (<= 1920 (Integer/parseInt byr-val))
-                         (>= 2002 (Integer/parseInt byr-val)))
-          valid-iyr (and (boolean iyr-val)
-                         (<= 2010 (Integer/parseInt iyr-val))
-                         (>= 2020 (Integer/parseInt iyr-val)))
-          valid-eyr (and (boolean eyr-val)
-                         (<= 2020 (Integer/parseInt eyr-val))
-                         (>= 2030 (Integer/parseInt eyr-val)))
+  (let [{_ :key byr-val :value} (filter-matching-fields m-seq "byr")
+        {_ :key iyr-val :value} (filter-matching-fields m-seq "iyr")
+        {_ :key eyr-val :value} (filter-matching-fields m-seq "eyr")
+        {_ :key hgt-val :value} (filter-matching-fields m-seq "hgt")
+        {_ :key hcl-val :value} (filter-matching-fields m-seq "hcl")
+        {_ :key ecl-val :value} (filter-matching-fields m-seq "ecl")
+        {_ :key pid-val :value} (filter-matching-fields m-seq "pid")]
+    (let [valid-byr (valid-between-numbers byr-val 1920 2002)
+          valid-iyr (valid-between-numbers iyr-val 2010 2020)
+          valid-eyr (valid-between-numbers eyr-val 2020 2030)
           valid-hgt (and (boolean hgt-val)
-                         (cond
-                           (s/includes? hgt-val "cm") (and (<= 150 (Integer/parseInt (first (re-seq #"[0-9]+" hgt-val))))
-                                                           (>= 193 (Integer/parseInt (first (re-seq #"[0-9]+" hgt-val)))))
-                           (s/includes? hgt-val "in") (and (<= 59 (Integer/parseInt (first (re-seq #"[0-9]+" hgt-val))))
-                                                           (>= 76 (Integer/parseInt (first (re-seq #"[0-9]+" hgt-val)))))
-                           :else false))
+                         (let [hgt (first (re-seq #"[0-9]+" hgt-val))]
+                           (cond
+                             (s/includes? hgt-val "cm") (valid-between-numbers hgt 150 193)
+                             (s/includes? hgt-val "in") (valid-between-numbers hgt 59 76)
+                             :else false)))
           valid-hcl (and (boolean hcl-val)
                          (= (first hcl-val) \#)
                          (= (count hcl-val) 7)
@@ -66,9 +75,6 @@
            valid-ecl
            valid-pid))))
 
-; keyword...
-; 함수화...
-; keyword를 계층을 만들 수 있다고 함
 
 (defn logic-part1 [string-info-seq]
   (->> string-info-seq
