@@ -15,8 +15,7 @@
 (defn parsing [path]
   (->> (read-input path)
        (map #(s/split % #" "))
-       (map (fn [[k v]] [k (Integer/parseInt v)]))
-       (into [])))
+       (map (fn [[k v]] [k (Integer/parseInt v)]))))
 
 (defn init-state []
   {:acc-val 0
@@ -29,22 +28,27 @@
 ; processing을 한번 거치면 update val, update idx, update visited vector를 하자
 
 (defn update-in-case-of-nop [state idx]
-  (-> (update state :visited #(conj % idx))
+  (-> state
+      (update :visited #(conj % idx))
       (update :idx inc)))
 
 (defn update-in-case-of-acc [state idx value]
-  (-> (update state :acc-val #(+ % value))
+  (-> state
+      (update :acc-val #(+ % value))
       (update :visited #(conj % idx))
       (update :idx inc)))
 
 (defn update-in-case-of-jmp [state idx value]
-  (-> (update state :visited #(conj % idx))
+  (-> state
+      (update :visited #(conj % idx))
       (update :idx #(+ % value))))
 
+; 반대로 하자
 (defn index-out-of-bounds [v-size idx]
   (or (< (dec v-size) idx)
       (> 0 idx)))
 
+; 반대로 하자
 (defn break-point-part1 [state]
   (->> (frequencies (:visited state))
        (some (fn [[_ v]] (> v 1)))))
@@ -104,10 +108,9 @@
 
 (defn solve-part2 [path]
   (->> (parsing path)
-       (generate-candidate-data)
-       (map (fn [x]
-              (logic-part2 x)))
-       (filter #(:break2? %))
+       generate-candidate-data
+       (map logic-part2)
+       (filter :break2?)
        first
        :acc-val))
 
