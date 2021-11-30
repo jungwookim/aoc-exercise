@@ -80,9 +80,9 @@
 (defn logic-part2 [string-info-seq]
   (->> string-info-seq
        (map parse-string-info-to-hash-map)
-       (map part2-passport-valid?)
-       (filter true?)
-       count))
+       (map part2-passport-valid?)))
+       ;(filter true?)
+       ;count))
 
 (defn solve-part1 [path]
   (->> path
