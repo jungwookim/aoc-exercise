@@ -10,8 +10,8 @@
        read-input
        (mapv #(Integer/parseInt %))))
 
-(defn logic-part1 [v-int]
-  (reduce (fn [{:keys [cur-val ans] :as acc} val]
+(defn logic [v-int]
+  (reduce (fn [{:keys [cur-val _] :as acc} val]
             (if (> val cur-val)
               (-> acc
                   (update :cur-val (constantly val))
@@ -24,11 +24,21 @@
 (defn solve-part1 [path]
   (->> path
        prepare-data
-       logic-part1))
+       logic))
+
+(defn solve-part2 [path]
+  (->> path
+       prepare-data
+       (partition 3 1)
+       (map #(apply + %))
+       logic))
+
 (def sample-input-path "resources/_2021/sample_input_p1.txt")
 (def input-path "resources/_2021/input_p1.txt")
 
 (comment
   (prepare-data sample-input-path),
   (solve-part1 sample-input-path)
-  (solve-part1 input-path))
+  (solve-part2 sample-input-path)
+  (solve-part1 input-path)
+  (solve-part2 input-path))
