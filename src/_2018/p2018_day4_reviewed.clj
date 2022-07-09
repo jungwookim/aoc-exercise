@@ -1,4 +1,4 @@
-(ns p2018_day4_reviewed
+(ns _2018.p2018-day4-reviewed
   (:require [clojure.string :as s]))
 
 ; read input and parsing

@@ -1,4 +1,5 @@
-(ns p2018_day5)
+(ns _2018.p2018-day5-reviewed
+  (:require [clojure.string :as s]))
 
 ; read input
 
@@ -6,32 +7,23 @@
   "output type: string"
   (-> path
       slurp
-      (clojure.string/split #"\n")
+      (s/split #"\n")
       first))
 
-(defn upper-case? [char]
-  (= (clojure.string/upper-case char) (str char)))
-
-
-(defn lower-case? [char]
-  (= (clojure.string/lower-case char) (str char)))
-
-(defn to-remove? [char1 char2]
+(defn remove? [char1 char2]
   (if (or (nil? char1)
           (nil? char2))
     false
-    (and (or (= (upper-case? char1) (lower-case? char2))
-             (= (lower-case? char1) (upper-case? char2)))
-         (= (clojure.string/upper-case char1) (clojure.string/upper-case char2)))))
-
+    (and (not= char1 char2)
+         (= (s/upper-case char1) (s/upper-case char2)))))
 
 (defn squeeze-string [string]
-  (reduce (fn [new-string
+  (reduce (fn [new-seq
                val]
-            (if (to-remove? val (last new-string))
-              (subs new-string 0 (dec (count new-string)))
-              (str new-string val)))
-          ""
+            (if (remove? val (peek new-seq))
+              (pop new-seq)
+              (conj new-seq val)))
+          []
           string))
 
 (defn solve-part1 [path]
@@ -43,17 +35,12 @@
 (def sample-input-path "resources/sample_input_p5.txt")
 (def input-path "resources/input_p5.txt")
 
-; part 2
-; alphabet set을 가지고
-; 전체 순회하면서
-; a A 이런걸 다 없앤 결과를 가지고
-; 제일 작은 값 가지면 됨
 (def alphabets (map char (range 97 123)))
 
-(defn delete-units-in-string [char string]
+(defn delete-units-in-string [character string]
   (-> string
-      (clojure.string/replace (clojure.string/lower-case char) "")
-      (clojure.string/replace (clojure.string/upper-case char) "")))
+      (s/replace (s/lower-case character) "")
+      (s/replace (s/upper-case character) "")))
 
 (defn removed-seq-by-unit-seq [string]
   (->> alphabets

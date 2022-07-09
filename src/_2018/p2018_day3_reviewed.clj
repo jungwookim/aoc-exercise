@@ -1,4 +1,4 @@
-(ns p2018_day3_reviewed)
+(ns _2018.p2018-day3-reviewed)
 
 ; read-input and parsing
 

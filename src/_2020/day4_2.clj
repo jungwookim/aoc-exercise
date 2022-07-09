@@ -1,4 +1,4 @@
-(ns p2020_day4_reviewed
+(ns _2020.day4-2
   (:require [clojure.string :as s]
             [clojure.spec.alpha :as sp]))
 

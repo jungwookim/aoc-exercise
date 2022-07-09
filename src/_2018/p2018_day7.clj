@@ -1,4 +1,4 @@
-(ns p2018_day7
+(ns _2018.p2018-day7
   (:require [clojure.string :as s]
             [clojure.java.io :as io]))
 

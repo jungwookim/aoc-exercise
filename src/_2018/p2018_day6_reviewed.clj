@@ -1,4 +1,4 @@
-(ns p2018_day6_reviewed
+(ns _2018.p2018-day6-reviewed
   (:require [clojure.string :as s]))
 
 

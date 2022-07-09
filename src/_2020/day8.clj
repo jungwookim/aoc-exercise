@@ -1,4 +1,4 @@
-(ns p2020_day8
+(ns _2020.day8
   (:require [clojure.string :as s]))
 
 ; vector로 index 접근을 계속 하도록 하자

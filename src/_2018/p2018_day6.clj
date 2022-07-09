@@ -1,4 +1,4 @@
-(ns p2018_day6
+(ns _2018.p2018-day6
   (:require [clojure.string :as s]))
 
 ; 점을 다 포함하는 넉넉한 matrix를 만들고

@@ -1,4 +1,4 @@
-(ns p2020-day1)
+(ns _2020.day1)
 
 ; clojure.math/permutations 같은게 있음
 

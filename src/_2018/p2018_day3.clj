@@ -1,4 +1,4 @@
-(ns p2018_day3)
+(ns _2018.p2018-day3)
 
 ; part 1 main logics
 

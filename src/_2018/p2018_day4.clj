@@ -1,4 +1,4 @@
-(ns p2018_day4
+(ns _2018.p2018-day4
   (:require [clojure.string :as str]))
 
 ; 0분 1분 ... 59분을 key로 하는 map을 관리한다. vals의 합이 결국 제일 오래 잔 사람

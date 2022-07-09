@@ -1,4 +1,4 @@
-(ns p2018_day7_reviewed
+(ns _2018.p2018-day7-reviewed
   (:require [clojure.string :as s]))
 
 (def sample-input-path "resources/sample_input_p7.txt")
