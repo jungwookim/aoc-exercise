@@ -12,25 +12,17 @@
        (map (fn [x] (s/split x #": ")))
        (map (fn [[k v]] [(parse-long k) (map #(parse-long %) (s/split v #" "))]))))
 
-(defn process [repr]
+(defn process [repr ops]
   (reduce (fn [{:keys [idx candi] :as state} val]
             (if (empty? candi)
               {:idx (inc idx) :candi (conj candi val)}
               {:idx (inc idx) :candi (->> candi
-                                          (map (fn [x] [(+ x val) (* x val)]))
+                                          (map (fn [x] (map #(% x val) ops)))
                                           flatten)})) {:idx 0 :candi []} repr))
 
-(defn process2 [repr]
-  (reduce (fn [{:keys [idx candi] :as state} val]
-            (if (empty? candi)
-              {:idx (inc idx) :candi (conj candi val)}
-              {:idx (inc idx) :candi (->> candi
-                                          (map (fn [x] [(+ x val) (* x val) (parse-long (str x val))]))
-                                          flatten)})) {:idx 0 :candi []} repr))
-
-(defn calc [line process-fn]
+(defn calc [line process-fn ops]
   (let [[goal repr] line
-        expected-results ((process-fn repr) :candi)]
+        expected-results ((process-fn repr ops) :candi)]
     {:result (some #(= %1 goal) expected-results)
      :goal goal
      :expected-results expected-results}))
@@ -38,7 +30,7 @@
 (defn part1 [path]
   (->> path
        prepare
-       (map #(calc % process))
+       (map #(calc % process [+ *]))
        (filter #(true? (:result %)))
        (map :goal)
        (reduce +)))
@@ -46,7 +38,7 @@
 (defn part2 [path]
   (->> path
        prepare
-       (map #(calc % process2))
+       (map #(calc % process [+ * (comp parse-long str)]))
        (filter #(true? (:result %)))
        (map :goal)
        (reduce +)))
