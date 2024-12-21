@@ -39,8 +39,16 @@
        (reduce +)))
 
 (comment
+  ;; 처음에 이렇게 했는데, 너무 nested seq가 많아져서 메모리 사용량이 높아져서 문제가 생김.
+  ;; memo도 통하지 않게 됨.
+;;   (if (empty? design)
+;;     true
+;;     (->> patterns
+;;          (filter #(str/starts-with? design %))
+;;          (map #(possible-count (subs design (count %))))))
   designs
   patterns
   (part1)
   (part2)
-  (possible-count "brwrr"))
+  (possible-count "brwrr")
+  )
