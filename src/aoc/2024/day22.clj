@@ -45,3 +45,32 @@
   []
   (transduce (map #(nth (iterate next-pnum %) 2000)) + data))
 
+(defn rem-10
+  [num]
+  (rem num 10))
+
+(defn seq-to-price-map
+  [data]
+  (->> (iterate next-pnum data)
+       (take 2001)
+       (map rem-10)
+       (partition 2 1)
+       (map (fn [[a b]] {:delta (- b a)
+                         :price b}))
+       (partition 4 1)
+       (reduce (fn [acc [info1 info2 info3 info4]]
+                 (update acc [(info1 :delta) (info2 :delta) (info3 :delta) (info4 :delta)] #(or %1 %2) (info4 :price)))
+               {})))
+
+(defn part2
+  []
+  (->> data
+       (map seq-to-price-map)
+       (apply merge-with +)
+       vals
+       (apply max)))
+
+(comment
+  data
+  (part1)
+  (part2))
