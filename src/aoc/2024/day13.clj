@@ -42,7 +42,35 @@
   []
   (transduce (map find-min-token) + data))
 
+;; ----- the above part is just a brute-force way to iterate all possibilities
+;; use a math.
+
+(defn cost
+  "input: {:A [94 34], :B [22 67], :P [8400 5400]}"
+  [{:keys [A B P]}]
+  (let [[xa ya] A
+        [xb yb] B
+        [xp yp] P
+        cost-a (/ (- (* xp yb) (* yp xb)) (- (* xa yb) (* ya xb)))
+        cost-b (/ (- yp (* cost-a ya)) yb)]
+    (if (and (integer? cost-a) (integer? cost-b))
+      (+ (* 3 cost-a) cost-b)
+      0)))
+
+(defn better-part1
+  []
+  (transduce (map cost) + data))
+
+(defn part2
+  []
+  (transduce (map cost) + (->> data
+                               (map #(update-in % [:P 0] + 10000000000000))
+                               (map #(update-in % [:P 1] + 10000000000000)))))
+
 (comment
+
   (part1)
+  (better-part1)
+  (part2)
   data
-  (find-min-token {:A [94 34], :B [22 67], :P [8400 5400]}))
+  )
